@@ -161,6 +161,11 @@ input {
   gap: 8px;
 }
 
+.toolbar {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .icon-button,
 .text-button {
   min-width: 42px;
@@ -170,6 +175,14 @@ input {
   color: var(--ink);
   background: var(--panel);
   cursor: pointer;
+}
+
+#today {
+  max-width: min(52vw, 300px);
+  padding: 0 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .icon-button.active,

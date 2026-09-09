@@ -10,6 +10,11 @@ const state = {
   },
 };
 
+const MISHNA_YOMI_ANCHOR = {
+  date: { year: 2026, month: 9, day: 8 },
+  firstMishnaId: 3437,
+};
+
 const els = {
   nav: document.querySelector("#nav"),
   menuButton: document.querySelector("#menuButton"),
@@ -20,6 +25,7 @@ const els = {
   title: document.querySelector("#title"),
   prev: document.querySelector("#prev"),
   next: document.querySelector("#next"),
+  today: document.querySelector("#today"),
   mishnaText: document.querySelector("#mishnaText"),
   kehatiText: document.querySelector("#kehatiText"),
   bartenuraText: document.querySelector("#bartenuraText"),
@@ -73,6 +79,67 @@ function parseHash() {
 
 function mishnaMeta(id) {
   return state.index.mishnayot.find((item) => item.id === id) || state.index.mishnayot[0];
+}
+
+function localDateUtcValue(date) {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function anchorDateUtcValue() {
+  const { year, month, day } = MISHNA_YOMI_ANCHOR.date;
+  return Date.UTC(year, month - 1, day);
+}
+
+function daysSinceAnchor(date = new Date()) {
+  const dayMs = 24 * 60 * 60 * 1000;
+  return Math.floor((localDateUtcValue(date) - anchorDateUtcValue()) / dayMs);
+}
+
+function mishnaYomiId(date = new Date()) {
+  const ordered = state.index.mishnayot;
+  const anchorIndex = ordered.findIndex((item) => item.id === MISHNA_YOMI_ANCHOR.firstMishnaId);
+  if (anchorIndex < 0) return ordered[0].id;
+
+  const offset = daysSinceAnchor(date) * 2;
+  const index = ((anchorIndex + offset) % ordered.length + ordered.length) % ordered.length;
+  return ordered[index].id;
+}
+
+function mishnaYomiPair(date = new Date()) {
+  const ordered = state.index.mishnayot;
+  const firstId = mishnaYomiId(date);
+  const firstIndex = ordered.findIndex((item) => item.id === firstId);
+  return [
+    ordered[firstIndex],
+    ordered[(firstIndex + 1) % ordered.length],
+  ];
+}
+
+function formatMishnaRef(meta, includeMasechet = true) {
+  const masechet = state.index.masechtot.find((item) => item.id === meta.massechet_id);
+  const ref = `${meta.perek}:${meta.mishna_num}`;
+  return includeMasechet ? `${masechet.he_name} ${ref}` : ref;
+}
+
+function mishnaYomiLabel(date = new Date()) {
+  const [first, second] = mishnaYomiPair(date);
+  const sameMasechet = first.massechet_id === second.massechet_id;
+  const samePerek = sameMasechet && first.perek === second.perek;
+
+  if (samePerek) {
+    return `משנה יומי: ${formatMishnaRef(first)}-${second.mishna_num}`;
+  }
+
+  if (sameMasechet) {
+    return `משנה יומי: ${formatMishnaRef(first)} - ${formatMishnaRef(second, false)}`;
+  }
+
+  return `משנה יומי: ${formatMishnaRef(first)} - ${formatMishnaRef(second)}`;
+}
+
+function updateMishnaYomiButton() {
+  els.today.textContent = mishnaYomiLabel();
+  els.today.title = "משנה יומית";
 }
 
 function hebrewNumber(number) {
@@ -298,6 +365,7 @@ async function init() {
 
   state.index = index;
 
+  updateMishnaYomiButton();
   renderNav();
   const initial = parseHash();
   if (initial.type === "intro") {
@@ -323,6 +391,9 @@ async function init() {
       return;
     }
     showMishna(Math.min(state.index.mishnayot[state.index.mishnayot.length - 1].id, state.currentId + 1));
+  });
+  els.today.addEventListener("click", () => {
+    showMishna(mishnaYomiId());
   });
 
   document.querySelectorAll("[data-panel]").forEach((button) => {
