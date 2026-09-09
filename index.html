@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>משניות קהתי</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <button id="menuButton" class="menu-button" type="button" aria-label="פתח תפריט" aria-controls="sidebar" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="brand">
+        <img src="assets/logo_k.png" alt="">
+        <div>
+          <h1>משניות קהתי</h1>
+          <p>Mishnayot Kehati</p>
+        </div>
+      </div>
+      <div class="toolbar" role="group" aria-label="תצוגה">
+        <button class="icon-button active" data-panel="kehati" title="קהתי">ק</button>
+        <button class="icon-button active" data-panel="bartenura" title="ברטנורא">ב</button>
+        <button class="icon-button" data-panel="english" title="English">EN</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <button id="drawerBackdrop" class="drawer-backdrop" type="button" aria-label="סגור תפריט" hidden></button>
+      <nav id="sidebar" class="sidebar" aria-label="ניווט משניות">
+        <label class="search">
+          <span>חיפוש</span>
+          <input id="search" type="search" autocomplete="off" placeholder="ברכות, Peah, שמע">
+        </label>
+        <div id="nav"></div>
+      </nav>
+
+      <section class="reader" aria-live="polite">
+        <div class="reader-head">
+          <div>
+            <p id="breadcrumb" class="breadcrumb"></p>
+            <h2 id="title"></h2>
+          </div>
+          <div class="stepper">
+            <button id="prev" class="text-button">הקודם</button>
+            <button id="next" class="text-button">הבא</button>
+          </div>
+        </div>
+
+        <article class="mishna">
+          <section id="introPanel" class="intro-panel" hidden>
+            <h3>הקדמה</h3>
+            <div id="introText" class="text-block hebrew"></div>
+          </section>
+          <section id="mishnaPanel">
+            <h3>משנה</h3>
+            <div id="mishnaText" class="text-block hebrew"></div>
+          </section>
+          <section id="kehatiPanel">
+            <h3>קהתי</h3>
+            <div id="kehatiText" class="text-block hebrew"></div>
+          </section>
+          <section id="bartenuraPanel">
+            <h3>ברטנורא</h3>
+            <div id="bartenuraText" class="text-block hebrew"></div>
+          </section>
+          <section id="englishPanel" hidden>
+            <h3>English</h3>
+            <div id="englishText" class="text-block english" dir="ltr"></div>
+          </section>
+        </article>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
