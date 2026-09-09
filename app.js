@@ -40,6 +40,13 @@ function normalize(value) {
   return String(value || "").toLocaleLowerCase();
 }
 
+function normalizeAssetRefs(html) {
+  return String(html || "")
+    .replaceAll("file:///android_asset/", "assets/")
+    .replace(/\b(src|href)=(["'])pics\//g, '$1=$2assets/pics/')
+    .replace(/<img\b[^>]*\bsrc=["']images\/[^"']+["'][^>]*>/g, "");
+}
+
 function setHash(id) {
   history.replaceState(null, "", `#mishna-${id}`);
 }
@@ -217,7 +224,7 @@ function showIntro(masechetId) {
 
   els.breadcrumb.textContent = `${seder.he_name} / ${masechet.he_name}`;
   els.title.textContent = `${masechet.he_name} הקדמה`;
-  els.introText.innerHTML = masechet.hakdama_txt || "";
+  els.introText.innerHTML = normalizeAssetRefs(masechet.hakdama_txt);
 
   els.introPanel.hidden = false;
   els.mishnaPanel.hidden = true;
@@ -247,10 +254,10 @@ async function showMishna(id) {
 
   els.breadcrumb.textContent = `${seder.he_name} / ${masechet.he_name}`;
   els.title.textContent = `${masechet.he_name} פרק ${mishna.perek} משנה ${mishna.mishna_num}`;
-  els.mishnaText.innerHTML = mishna.mishna_sdura || mishna.mishna_txt;
-  els.kehatiText.innerHTML = mishna.kehati_txt || "";
-  els.bartenuraText.innerHTML = mishna.bartenura_txt || "";
-  els.englishText.innerHTML = mishna.english_txt || "";
+  els.mishnaText.innerHTML = normalizeAssetRefs(mishna.mishna_sdura || mishna.mishna_txt);
+  els.kehatiText.innerHTML = normalizeAssetRefs(mishna.kehati_txt);
+  els.bartenuraText.innerHTML = normalizeAssetRefs(mishna.bartenura_txt);
+  els.englishText.innerHTML = normalizeAssetRefs(mishna.english_txt);
 
   els.introPanel.hidden = true;
   els.mishnaPanel.hidden = false;

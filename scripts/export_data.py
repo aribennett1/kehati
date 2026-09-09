@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import re
 import shutil
 import sqlite3
 import sys
@@ -13,15 +14,21 @@ APK_ASSETS = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("/tmp/kehati_apkto
 OUT = ROOT
 
 
+def normalize_asset_refs(text):
+    text = text.replace("file:///android_asset/", "assets/")
+    text = re.sub(r'(?P<attr>\b(?:src|href)=["\'])pics/', r"\g<attr>assets/pics/", text)
+    return re.sub(r'<img\b[^>]*\bsrc=["\']images/[^"\']+["\'][^>]*>', "", text)
+
+
 def inflate(value):
     if value is None:
         return ""
     if isinstance(value, str):
-        return value
+        return normalize_asset_refs(value)
     try:
-        return zlib.decompress(value).decode("utf-8")
+        return normalize_asset_refs(zlib.decompress(value).decode("utf-8"))
     except zlib.error:
-        return value.decode("utf-8", errors="replace")
+        return normalize_asset_refs(value.decode("utf-8", errors="replace"))
 
 
 def row_dict(cursor, row):
