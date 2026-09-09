@@ -358,6 +358,16 @@ input {
   margin: 1rem auto;
 }
 
+.intro-image {
+  margin: 0 0 1.4rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.intro-image img {
+  max-width: min(100%, 760px);
+}
+
 #mishnaText {
   font-size: clamp(1.45rem, 2.1vw, 1.9rem);
   line-height: 1.7;

@@ -117,6 +117,18 @@ function hasIntro(masechet) {
   return Boolean(introPlain && introPlain !== ".");
 }
 
+function introImage(masechetId) {
+  if (masechetId !== 50) return "";
+  const imagePath = "assets/pics/Kehati-Bais-HaMikdash.jpg";
+  return `
+    <figure class="intro-image">
+      <a href="${imagePath}" target="_blank" rel="noopener">
+        <img src="${imagePath}" alt="">
+      </a>
+    </figure>
+  `;
+}
+
 async function loadMasechet(massechetId) {
   if (!state.loadedMasechtot.has(massechetId)) {
     const rows = await fetch(`data/masechtot/${massechetId}.json`).then((response) => response.json());
@@ -224,7 +236,7 @@ function showIntro(masechetId) {
 
   els.breadcrumb.textContent = `${seder.he_name} / ${masechet.he_name}`;
   els.title.textContent = `${masechet.he_name} הקדמה`;
-  els.introText.innerHTML = normalizeAssetRefs(masechet.hakdama_txt);
+  els.introText.innerHTML = introImage(masechet.id) + normalizeAssetRefs(masechet.hakdama_txt);
 
   els.introPanel.hidden = false;
   els.mishnaPanel.hidden = true;
