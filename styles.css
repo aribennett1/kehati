@@ -177,21 +177,23 @@ input {
   cursor: pointer;
 }
 
-#today {
-  max-width: min(52vw, 300px);
-  padding: 0 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .icon-button.active,
+.text-button:focus-visible,
 .text-button:hover,
 .nav-item:hover,
 .nav-item.active {
   border-color: var(--focus);
   color: #fff;
   background: var(--focus);
+}
+
+.text-button:disabled,
+.text-button:disabled:hover {
+  border-color: var(--line);
+  color: var(--muted);
+  background: var(--panel);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .layout {
@@ -215,6 +217,16 @@ input {
   display: none;
 }
 
+.nav-tools {
+  position: sticky;
+  top: -18px;
+  z-index: 1;
+  margin: -18px -18px 14px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--line);
+  background: #f4f1eb;
+}
+
 .search {
   display: grid;
   gap: 6px;
@@ -230,6 +242,26 @@ input {
   border-radius: 6px;
   padding: 0 12px;
   background: var(--panel);
+}
+
+.nav-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.nav-actions .text-button {
+  width: 100%;
+  min-width: 0;
+  padding: 0 10px;
+}
+
+#today {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .seder {
@@ -317,6 +349,19 @@ input {
   opacity: 0.72;
 }
 
+.mishna-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+}
+
+.mishna-nav-label {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
 .reader {
   max-width: 1080px;
   width: 100%;
@@ -351,6 +396,56 @@ input {
   margin: 0 0 10px;
   color: var(--accent);
   font-size: 1rem;
+}
+
+.bookmark-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  opacity: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.bookmark-button svg {
+  width: 24px;
+  height: 30px;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.mishna-nav-row:hover,
+.mishna-nav-row.active {
+  align-items: center;
+}
+
+.mishna-nav-row:hover .bookmark-button,
+.mishna-nav-row.active .bookmark-button,
+.bookmark-button:focus-visible,
+.bookmark-button.active {
+  opacity: 1;
+}
+
+.mishna-nav-row:hover .bookmark-button,
+.mishna-nav-row.active .bookmark-button {
+  color: #fff;
+}
+
+.bookmark-button:hover,
+.bookmark-button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.bookmark-button.active svg {
+  fill: currentColor;
 }
 
 .text-block {

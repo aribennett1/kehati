@@ -21,7 +21,6 @@
         </div>
       </div>
       <div class="toolbar" role="group" aria-label="תצוגה">
-        <button id="today" class="text-button" type="button" title="משנה יומית">משנה יומית</button>
         <button class="icon-button active" data-panel="kehati" title="קהתי">ק</button>
         <button class="icon-button active" data-panel="bartenura" title="ברטנורא">ב</button>
         <button class="icon-button" data-panel="english" title="English">EN</button>
@@ -31,10 +30,16 @@
     <main class="layout">
       <button id="drawerBackdrop" class="drawer-backdrop" type="button" aria-label="סגור תפריט" hidden></button>
       <nav id="sidebar" class="sidebar" aria-label="ניווט משניות">
-        <label class="search">
-          <span>חיפוש</span>
-          <input id="search" type="search" autocomplete="off" placeholder="ברכות, Peah, שמע">
-        </label>
+        <div class="nav-tools">
+          <label class="search">
+            <span>חיפוש</span>
+            <input id="search" type="search" autocomplete="off" placeholder="ברכות, Peah, שמע">
+          </label>
+          <div class="nav-actions">
+            <button id="today" class="text-button" type="button" title="משנה יומית">משנה יומית</button>
+            <button id="bookmarkJump" class="text-button" type="button" title="עבור לסימניה">סימניה</button>
+          </div>
+        </div>
         <div id="nav"></div>
       </nav>
 

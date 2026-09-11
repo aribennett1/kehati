@@ -15,6 +15,8 @@ const MISHNA_YOMI_ANCHOR = {
   firstMishnaId: 3437,
 };
 
+const BOOKMARK_KEY = "kehatiBookmark";
+
 const els = {
   nav: document.querySelector("#nav"),
   menuButton: document.querySelector("#menuButton"),
@@ -26,6 +28,7 @@ const els = {
   prev: document.querySelector("#prev"),
   next: document.querySelector("#next"),
   today: document.querySelector("#today"),
+  bookmarkJump: document.querySelector("#bookmarkJump"),
   mishnaText: document.querySelector("#mishnaText"),
   kehatiText: document.querySelector("#kehatiText"),
   bartenuraText: document.querySelector("#bartenuraText"),
@@ -57,6 +60,40 @@ function setHash(id) {
   history.replaceState(null, "", `#mishna-${id}`);
 }
 
+function getBookmark() {
+  try {
+    return Number(localStorage.getItem(BOOKMARK_KEY)) || null;
+  } catch {
+    return null;
+  }
+}
+
+function setBookmark(id) {
+  const currentBookmark = getBookmark();
+  try {
+    if (currentBookmark === id) {
+      localStorage.removeItem(BOOKMARK_KEY);
+    } else {
+      localStorage.setItem(BOOKMARK_KEY, String(id));
+    }
+  } catch {
+    return;
+  }
+  updateBookmarkButton();
+}
+
+function updateBookmarkButton() {
+  const bookmarkId = getBookmark();
+  els.bookmarkJump.disabled = !bookmarkId;
+  document.querySelectorAll(".bookmark-button").forEach((button) => {
+    const active = Number(button.dataset.id) === bookmarkId;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.setAttribute("aria-label", active ? "סימניה שמורה" : "שמור סימניה");
+    button.title = active ? "סימניה שמורה" : "שמור סימניה";
+  });
+}
+
 function setMenuOpen(open) {
   document.body.classList.toggle("menu-open", open);
   els.menuButton.setAttribute("aria-expanded", String(open));
@@ -74,7 +111,7 @@ function parseHash() {
   const introMatch = location.hash.match(/intro-(\d+)/);
   if (introMatch) return { type: "intro", id: Number(introMatch[1]) };
   const match = location.hash.match(/mishna-(\d+)/);
-  return { type: "mishna", id: match ? Number(match[1]) : 1 };
+  return match ? { type: "mishna", id: Number(match[1]) } : null;
 }
 
 function mishnaMeta(id) {
@@ -273,13 +310,34 @@ function renderNav(filter = "") {
 
         for (const mishna of mishnayot) {
           const button = document.createElement("button");
-          button.className = "nav-item mishna-link";
+          button.className = "nav-item mishna-link mishna-nav-row";
           button.type = "button";
           button.dataset.id = mishna.id;
-          button.textContent = `משנה ${hebrewNumber(mishna.mishna_num)}`;
           button.addEventListener("click", () => {
             showMishna(mishna.id);
           });
+
+          const label = document.createElement("span");
+          label.className = "mishna-nav-label";
+          label.textContent = `משנה ${hebrewNumber(mishna.mishna_num)}`;
+          button.append(label);
+
+          const bookmark = document.createElement("button");
+          bookmark.className = "bookmark-button";
+          bookmark.type = "button";
+          bookmark.dataset.id = mishna.id;
+          bookmark.innerHTML = `
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 3.5h12v17l-6-4-6 4z"></path>
+            </svg>
+          `;
+          bookmark.addEventListener("click", (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            setBookmark(mishna.id);
+          });
+          button.append(bookmark);
+
           perekDetails.append(button);
         }
 
@@ -291,6 +349,7 @@ function renderNav(filter = "") {
 
     els.nav.append(sederDetails);
   }
+  updateBookmarkButton();
 }
 
 function revealNavItem(selector, { scroll = false } = {}) {
@@ -393,10 +452,12 @@ async function init() {
   updateMishnaYomiButton();
   renderNav();
   const initial = parseHash();
-  if (initial.type === "intro") {
+  if (initial?.type === "intro") {
     showIntro(initial.id, { scrollNav: true });
-  } else {
+  } else if (initial) {
     await showMishna(initial.id, { scrollNav: true });
+  } else {
+    await showMishna(getBookmark() || 1, { scrollNav: true });
   }
 
   els.search.addEventListener("input", () => renderNav(els.search.value));
@@ -427,6 +488,10 @@ async function init() {
   });
   els.today.addEventListener("click", () => {
     showMishna(mishnaYomiId(), { scrollNav: true });
+  });
+  els.bookmarkJump.addEventListener("click", () => {
+    const bookmarkId = getBookmark();
+    if (bookmarkId) showMishna(bookmarkId, { scrollNav: true });
   });
 
   document.querySelectorAll("[data-panel]").forEach((button) => {
