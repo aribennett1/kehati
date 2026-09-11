@@ -293,6 +293,33 @@ function renderNav(filter = "") {
   }
 }
 
+function revealNavItem(selector) {
+  document.querySelectorAll(".nav-item.active").forEach((item) => item.classList.remove("active"));
+
+  let navItem = document.querySelector(selector);
+  if (!navItem && els.search.value) {
+    els.search.value = "";
+    renderNav();
+    navItem = document.querySelector(selector);
+  }
+
+  if (!navItem) return;
+
+  navItem.classList.add("active");
+  let parent = navItem.parentElement;
+  while (parent) {
+    if (parent.tagName === "DETAILS") parent.open = true;
+    parent = parent.parentElement;
+  }
+
+  requestAnimationFrame(() => {
+    const sidebarRect = els.sidebar.getBoundingClientRect();
+    const itemRect = navItem.getBoundingClientRect();
+    const itemOffset = itemRect.top - sidebarRect.top + els.sidebar.scrollTop;
+    els.sidebar.scrollTop = itemOffset - (els.sidebar.clientHeight / 2) + (navItem.offsetHeight / 2);
+  });
+}
+
 function showIntro(masechetId) {
   const masechet = state.index.masechtot.find((item) => item.id === masechetId);
   const seder = state.index.sedarim.find((item) => item.id === masechet.seder_id);
@@ -315,9 +342,7 @@ function showIntro(masechetId) {
   els.next.disabled = !firstMishna;
   state.introNextId = firstMishna?.id || null;
 
-  document.querySelectorAll(".nav-item.active").forEach((item) => item.classList.remove("active"));
-  const navItem = document.querySelector(`.nav-item[data-intro="${masechet.id}"]`);
-  if (navItem) navItem.classList.add("active");
+  revealNavItem(`.nav-item[data-intro="${masechet.id}"]`);
   closeMenuOnMobile();
 }
 
@@ -348,9 +373,7 @@ async function showMishna(id) {
   els.next.disabled = mishna.id >= state.index.mishnayot[state.index.mishnayot.length - 1].id;
   state.introNextId = null;
 
-  document.querySelectorAll(".nav-item.active").forEach((item) => item.classList.remove("active"));
-  const navItem = document.querySelector(`.nav-item[data-id="${mishna.id}"]`);
-  if (navItem) navItem.classList.add("active");
+  revealNavItem(`.nav-item[data-id="${mishna.id}"]`);
   closeMenuOnMobile();
 }
 
