@@ -293,7 +293,7 @@ function renderNav(filter = "") {
   }
 }
 
-function revealNavItem(selector) {
+function revealNavItem(selector, { scroll = false } = {}) {
   document.querySelectorAll(".nav-item.active").forEach((item) => item.classList.remove("active"));
 
   let navItem = document.querySelector(selector);
@@ -312,15 +312,17 @@ function revealNavItem(selector) {
     parent = parent.parentElement;
   }
 
-  requestAnimationFrame(() => {
-    const sidebarRect = els.sidebar.getBoundingClientRect();
-    const itemRect = navItem.getBoundingClientRect();
-    const itemOffset = itemRect.top - sidebarRect.top + els.sidebar.scrollTop;
-    els.sidebar.scrollTop = itemOffset - (els.sidebar.clientHeight / 2) + (navItem.offsetHeight / 2);
-  });
+  if (scroll) {
+    requestAnimationFrame(() => {
+      const sidebarRect = els.sidebar.getBoundingClientRect();
+      const itemRect = navItem.getBoundingClientRect();
+      const itemOffset = itemRect.top - sidebarRect.top + els.sidebar.scrollTop;
+      els.sidebar.scrollTop = itemOffset - (els.sidebar.clientHeight / 2) + (navItem.offsetHeight / 2);
+    });
+  }
 }
 
-function showIntro(masechetId) {
+function showIntro(masechetId, { scrollNav = false } = {}) {
   const masechet = state.index.masechtot.find((item) => item.id === masechetId);
   const seder = state.index.sedarim.find((item) => item.id === masechet.seder_id);
   const firstMishna = state.index.mishnayot.find((item) => item.massechet_id === masechetId);
@@ -342,11 +344,11 @@ function showIntro(masechetId) {
   els.next.disabled = !firstMishna;
   state.introNextId = firstMishna?.id || null;
 
-  revealNavItem(`.nav-item[data-intro="${masechet.id}"]`);
+  revealNavItem(`.nav-item[data-intro="${masechet.id}"]`, { scroll: scrollNav });
   closeMenuOnMobile();
 }
 
-async function showMishna(id) {
+async function showMishna(id, { scrollNav = false } = {}) {
   const meta = mishnaMeta(id);
   const rows = await loadMasechet(meta.massechet_id);
   const mishna = rows.find((item) => item.id === meta.id) || rows[0];
@@ -373,7 +375,7 @@ async function showMishna(id) {
   els.next.disabled = mishna.id >= state.index.mishnayot[state.index.mishnayot.length - 1].id;
   state.introNextId = null;
 
-  revealNavItem(`.nav-item[data-id="${mishna.id}"]`);
+  revealNavItem(`.nav-item[data-id="${mishna.id}"]`, { scroll: scrollNav });
   closeMenuOnMobile();
 }
 
@@ -392,9 +394,9 @@ async function init() {
   renderNav();
   const initial = parseHash();
   if (initial.type === "intro") {
-    showIntro(initial.id);
+    showIntro(initial.id, { scrollNav: true });
   } else {
-    await showMishna(initial.id);
+    await showMishna(initial.id, { scrollNav: true });
   }
 
   els.search.addEventListener("input", () => renderNav(els.search.value));
@@ -404,6 +406,14 @@ async function init() {
   els.drawerBackdrop.addEventListener("click", () => setMenuOpen(false));
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") setMenuOpen(false);
+  });
+  window.addEventListener("hashchange", async () => {
+    const next = parseHash();
+    if (next.type === "intro") {
+      showIntro(next.id, { scrollNav: true });
+    } else {
+      await showMishna(next.id, { scrollNav: true });
+    }
   });
   els.prev.addEventListener("click", () => {
     showMishna(Math.max(state.index.mishnayot[0].id, state.currentId - 1));
@@ -416,7 +426,7 @@ async function init() {
     showMishna(Math.min(state.index.mishnayot[state.index.mishnayot.length - 1].id, state.currentId + 1));
   });
   els.today.addEventListener("click", () => {
-    showMishna(mishnaYomiId());
+    showMishna(mishnaYomiId(), { scrollNav: true });
   });
 
   document.querySelectorAll("[data-panel]").forEach((button) => {
