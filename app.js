@@ -114,6 +114,11 @@ function parseHash() {
   return match ? { type: "mishna", id: Number(match[1]) } : null;
 }
 
+function shouldOpenMishnaYomi() {
+  const params = new URLSearchParams(location.search);
+  return params.has("yomi") || params.get("mishna-yomi") === "true";
+}
+
 function mishnaMeta(id) {
   return state.index.mishnayot.find((item) => item.id === id) || state.index.mishnayot[0];
 }
@@ -452,7 +457,9 @@ async function init() {
   updateMishnaYomiButton();
   renderNav();
   const initial = parseHash();
-  if (initial?.type === "intro") {
+  if (shouldOpenMishnaYomi()) {
+    await showMishna(mishnaYomiId(), { scrollNav: true });
+  } else if (initial?.type === "intro") {
     showIntro(initial.id, { scrollNav: true });
   } else if (initial) {
     await showMishna(initial.id, { scrollNav: true });
