@@ -16,6 +16,7 @@ const MISHNA_YOMI_ANCHOR = {
 };
 
 const BOOKMARK_KEY = "kehatiBookmark";
+const PANEL_CONFIG_KEY = "kehatiPanelConfig";
 
 const els = {
   nav: document.querySelector("#nav"),
@@ -92,6 +93,33 @@ function updateBookmarkButton() {
     button.setAttribute("aria-label", active ? "סימניה שמורה" : "שמור סימניה");
     button.title = active ? "סימניה שמורה" : "שמור סימניה";
   });
+}
+
+function loadPanelConfig() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PANEL_CONFIG_KEY) || "{}");
+    for (const panel of Object.keys(state.visible)) {
+      if (typeof saved[panel] === "boolean") {
+        state.visible[panel] = saved[panel];
+      }
+    }
+  } catch {
+    return;
+  }
+}
+
+function savePanelConfig() {
+  try {
+    localStorage.setItem(PANEL_CONFIG_KEY, JSON.stringify(state.visible));
+  } catch {
+    return;
+  }
+}
+
+function updatePanelButtons() {
+  for (const [panel, visible] of Object.entries(state.visible)) {
+    document.querySelector(`[data-panel="${panel}"]`).classList.toggle("active", visible);
+  }
 }
 
 function setMenuOpen(open) {
@@ -447,12 +475,15 @@ function setPanel(panel, visible) {
   state.visible[panel] = visible;
   document.querySelector(`[data-panel="${panel}"]`).classList.toggle("active", visible);
   els[`${panel}Panel`].hidden = !visible;
+  savePanelConfig();
 }
 
 async function init() {
   const index = await fetch("data/index.json").then((response) => response.json());
 
   state.index = index;
+  loadPanelConfig();
+  updatePanelButtons();
 
   updateMishnaYomiButton();
   renderNav();
