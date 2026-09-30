@@ -81,6 +81,7 @@ function mapById(items) {
 }
 
 function renderEmail(rows) {
+  const dailyUrl = `${CONFIG.dataBaseUrl.replace(/\/$/, "")}/#mishna-${rows[0].mishna.id}`;
   return `
     <!doctype html>
     <html dir="rtl" lang="he">
@@ -172,6 +173,7 @@ function renderEmail(rows) {
         </style>
       </head>
       <body>
+      <a href="${dailyUrl}">${dailyUrl}</a>
         <div class="wrap" dir="rtl" style="direction: rtl; text-align: right;">
           ${rows.map(renderMishna).join("")}
         </div>
