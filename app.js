@@ -467,7 +467,7 @@ async function showMishna(id, { scrollNav = false } = {}) {
   els.next.disabled = mishna.id >= state.index.mishnayot[state.index.mishnayot.length - 1].id;
   state.introNextId = null;
 
-  revealNavItem(`.nav-item[data-id="${mishna.id}"]`, { scroll: scrollNav });
+  revealNavItem(`.mishna-link[data-id="${mishna.id}"]`, { scroll: scrollNav });
   closeMenuOnMobile();
 }
 
