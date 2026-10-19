@@ -18,6 +18,14 @@ const MISHNA_YOMI_ANCHOR = {
 const BOOKMARK_KEY = "kehatiBookmark";
 const PANEL_CONFIG_KEY = "kehatiPanelConfig";
 
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch((error) => {
+      console.warn("Offline reading could not be enabled.", error);
+    });
+  });
+}
+
 const els = {
   nav: document.querySelector("#nav"),
   menuButton: document.querySelector("#menuButton"),
