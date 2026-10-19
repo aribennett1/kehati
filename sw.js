@@ -1,4 +1,5 @@
-const CACHE_NAME = "kehati-library-v1";
+// Bump this only when the service worker's cache format or behavior changes.
+const CACHE_NAME = "kehati-library-v2";
 const MASECHTOT_COUNT = 63;
 
 const CORE_ASSETS = [
@@ -65,19 +66,17 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-async function fromCacheOrNetwork(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-
+async function networkFirst(request, fallbackUrl) {
   try {
     const response = await fetch(request);
     if (response.ok) {
       const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
+      await cache.put(fallbackUrl || request, response.clone());
     }
     return response;
   } catch {
-    return new Response("Offline", { status: 503, statusText: "Offline" });
+    const cached = await caches.match(fallbackUrl || request);
+    return cached || new Response("Offline", { status: 503, statusText: "Offline" });
   }
 }
 
@@ -88,11 +87,9 @@ self.addEventListener("fetch", (event) => {
   if (requestUrl.origin !== self.location.origin) return;
 
   if (event.request.mode === "navigate") {
-    event.respondWith(
-      caches.match(urlFor("index.html")).then((cached) => cached || fetch(event.request)),
-    );
+    event.respondWith(networkFirst(event.request, urlFor("index.html")));
     return;
   }
 
-  event.respondWith(fromCacheOrNetwork(event.request));
+  event.respondWith(networkFirst(event.request));
 });
